@@ -39,11 +39,12 @@ import (
 )
 
 type Options struct {
-	Version         float64       `mapstructure:"version"`
-	TLSCache        string        `mapstructure:"tlsCache"`
-	EnableTelemetry bool          `mapstructure:"enableTelemetry"`
-	EnableSignup    bool          `mapstructure:"enableSignup"`
-	SessionDuration time.Duration `mapstructure:"sessionDuration"`
+	Version                  float64       `mapstructure:"version"`
+	TLSCache                 string        `mapstructure:"tlsCache"`
+	EnableTelemetry          bool          `mapstructure:"enableTelemetry"`
+	EnableSignup             bool          `mapstructure:"enableSignup"`
+	SessionDuration          time.Duration `mapstructure:"sessionDuration"`
+	SessionExtensionDeadline time.Duration `mapstructure:"sessionExtensionDeadline"`
 
 	DBFile                  string `mapstructure:"dbFile"`
 	DBEncryptionKey         string `mapstructure:"dbEncryptionKey"`
