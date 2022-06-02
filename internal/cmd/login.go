@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/mail"
 	"net/url"
 	"os"
 	"sort"
@@ -340,13 +341,8 @@ func loginToProvider(provider *api.Provider) (*api.LoginRequestOIDC, error) {
 func runSignupForLogin(cli *CLI, client *api.Client) (*api.LoginRequestPasswordCredentials, error) {
 	fmt.Fprintln(cli.Stderr, "  Welcome to Infra. Set up your admin user:")
 
-	var username string
-	if err := survey.AskOne(
-		&survey.Input{Message: "Username:"},
-		&username,
-		cli.surveyIO,
-		survey.WithValidator(survey.Required),
-	); err != nil {
+	email, err := promptSetEmail(cli)
+	if err != nil {
 		return nil, err
 	}
 
@@ -355,13 +351,13 @@ func runSignupForLogin(cli *CLI, client *api.Client) (*api.LoginRequestPasswordC
 		return nil, err
 	}
 
-	_, err = client.Signup(&api.SignupRequest{Name: username, Password: password})
+	_, err = client.Signup(&api.SignupRequest{Name: email, Password: password})
 	if err != nil {
 		return nil, err
 	}
 
 	return &api.LoginRequestPasswordCredentials{
-		Name:     username,
+		Name:     email,
 		Password: password,
 	}, nil
 }
@@ -597,4 +593,25 @@ func promptServerList(cli *CLI, servers []ClientHostConfig) (string, error) {
 	}
 
 	return servers[i].Host, nil
+}
+
+func promptSetEmail(cli *CLI) (string, error) {
+	var email string
+PROMPT:
+	if err := survey.AskOne(
+		&survey.Input{Message: "Email:"},
+		&email,
+		cli.surveyIO,
+		survey.WithValidator(survey.Required),
+	); err != nil {
+		return "", err
+	}
+
+	_, err := mail.ParseAddress(email)
+	if err != nil {
+		cli.Output("  Please enter a valid email.")
+		goto PROMPT
+	}
+
+	return email, nil
 }
