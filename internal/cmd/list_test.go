@@ -47,7 +47,8 @@ func TestListCmd(t *testing.T) {
 		assert.Check(t, srv.Run(ctx))
 	}()
 
-	c, err := apiClient(srv.Addrs.HTTPS.String(), "0000000001.adminadminadminadmin1234", true)
+	httpTransport := httpTransportForHostConfig(&ClientHostConfig{SkipTLSVerify: true})
+	c, err := apiClient(srv.Addrs.HTTPS.String(), "0000000001.adminadminadminadmin1234", httpTransport)
 	assert.NilError(t, err)
 
 	_, err = c.CreateDestination(&api.CreateDestinationRequest{

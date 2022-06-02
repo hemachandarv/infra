@@ -68,7 +68,7 @@ func logoutOfServer(hostConfig *ClientHostConfig) (success bool) {
 		return false
 	}
 
-	client, err := apiClient(hostConfig.Host, hostConfig.AccessKey, defaultHTTPTransport(hostConfig.SkipTLSVerify))
+	client, err := apiClient(hostConfig.Host, hostConfig.AccessKey, httpTransportForHostConfig(hostConfig))
 	if err != nil {
 		logging.S.Debugf("err: %s", err)
 		return false
