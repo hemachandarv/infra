@@ -79,10 +79,11 @@ func defaultAPIClient() (*api.Client, error) {
 		return nil, err
 	}
 
-	return apiClient(config.Host, config.AccessKey, config.SkipTLSVerify)
+	return apiClient(config.Host, config.AccessKey, defaultHTTPTransport(config.SkipTLSVerify))
 }
 
-func apiClient(host string, accessKey string, skipTLSVerify bool) (*api.Client, error) {
+// TODO: accept a url.URL to remove the error return value
+func apiClient(host string, accessKey string, transport *http.Transport) (*api.Client, error) {
 	u, err := urlx.Parse(host)
 	if err != nil {
 		return nil, err
@@ -98,16 +99,20 @@ func apiClient(host string, accessKey string, skipTLSVerify bool) (*api.Client, 
 		URL:       fmt.Sprintf("%s://%s", u.Scheme, u.Host),
 		AccessKey: accessKey,
 		HTTP: http.Client{
-			Timeout: 60 * time.Second,
-			Transport: &http.Transport{
-				TLSClientConfig: &tls.Config{
-					//nolint:gosec // We may purposely set insecureskipverify via a flag
-					InsecureSkipVerify: skipTLSVerify,
-				},
-			},
+			Timeout:   60 * time.Second,
+			Transport: transport,
 		},
 		Headers: headers,
 	}, nil
+}
+
+func defaultHTTPTransport(skipTLSVerify bool) *http.Transport {
+	return &http.Transport{
+		TLSClientConfig: &tls.Config{
+			//nolint:gosec // We may purposely set insecureskipverify via a flag
+			InsecureSkipVerify: skipTLSVerify,
+		},
+	}
 }
 
 func newUseCmd(_ *CLI) *cobra.Command {
