@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/pem"
 	"errors"
 	"fmt"
 	"net/http"
@@ -229,8 +230,9 @@ func updateInfraConfig(lc loginClient, loginReq *api.LoginRequest, loginRes *api
 		return fmt.Errorf("Could not update config due to an internal error")
 	}
 	clientHostConfig.SkipTLSVerify = t.TLSClientConfig.InsecureSkipVerify
-	// TODO: save this in PEM format
-	clientHostConfig.TrustedCertificate = lc.TrustedCertificate
+	if len(lc.TrustedCertificate) > 0 {
+		clientHostConfig.TrustedCertificate = pemEncodeCertificate(lc.TrustedCertificate)
+	}
 
 	if loginReq.OIDC != nil {
 		clientHostConfig.ProviderID = loginReq.OIDC.ProviderID
@@ -247,6 +249,15 @@ func updateInfraConfig(lc loginClient, loginReq *api.LoginRequest, loginRes *api
 	}
 
 	return nil
+}
+
+func pemEncodeCertificate(raw []byte) []byte {
+	return pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: raw})
+}
+
+func pemDecodeCertificate(raw []byte) []byte {
+	block, _ := pem.Decode(raw)
+	return block.Bytes
 }
 
 func oidcflow(host string, clientId string) (string, error) {
@@ -402,7 +413,9 @@ func newLoginClient(cli *CLI, options loginCmdOptions) (loginClient, error) {
 			}
 			pool.AddCert(uaErr.Cert)
 			transport := &http.Transport{
-				TLSClientConfig: &tls.Config{RootCAs: pool},
+				TLSClientConfig: &tls.Config{
+					RootCAs: pool,
+				},
 			}
 			c.APIClient, err = apiClient(options.Server, "", transport)
 			c.TrustedCertificate = uaErr.Cert.Raw
@@ -545,7 +558,11 @@ func promptVerifyTLSCert(cli *CLI, cert *x509.Certificate) error {
 	// TODO: improve this message
 	// TODO: use color/bold to highlight important parts
 	// TODO: test format with golden
-	fmt.Fprintf(cli.Stderr, `The certificate presented by the server could not be automatically verified.
+	fmt.Fprintf(cli.Stderr, `
+The certificate presented by the server is not trusted by your operating system. It
+could not be automatically verified.
+
+Certificate
 
 Subject: %[1]s
 Issuer: %[2]s
@@ -597,7 +614,7 @@ to manually verify the certificate can be trusted.
 // TODO: move this to a shared place.
 func fingerprint(cert *x509.Certificate) string {
 	raw := sha256.Sum256(cert.Raw)
-	return strings.Replace(fmt.Sprintf("% x", raw), " ", ":", -1)
+	return strings.ReplaceAll(fmt.Sprintf("% x", raw), " ", ":")
 }
 
 // Returns the host address of the Infra server that user would like to log into

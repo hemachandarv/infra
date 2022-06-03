@@ -83,7 +83,7 @@ func defaultAPIClient() (*api.Client, error) {
 	return apiClient(config.Host, config.AccessKey, httpTransportForHostConfig(config))
 }
 
-// TODO: accept a url.URL to remove the error return value
+// TODO: accept a url.URL to remove the error return value (github.com/infrahq/infra/issues/1627)
 func apiClient(host string, accessKey string, transport *http.Transport) (*api.Client, error) {
 	u, err := urlx.Parse(host)
 	if err != nil {
@@ -110,15 +110,17 @@ func apiClient(host string, accessKey string, transport *http.Transport) (*api.C
 func httpTransportForHostConfig(config *ClientHostConfig) *http.Transport {
 	pool, err := x509.SystemCertPool()
 	if err != nil {
-		// TODO: print warning about this case
+		logging.S.Warnf("Failed to load trusted certificates from system: %v", err)
 		pool = x509.NewCertPool()
 	}
 
 	if len(config.TrustedCertificate) > 0 {
-		// TODO: log or return the error
-		// TODO: read this in PEM format
-		cert, _ := x509.ParseCertificate(config.TrustedCertificate)
-		pool.AddCert(cert)
+		cert, err := x509.ParseCertificate(pemDecodeCertificate(config.TrustedCertificate))
+		if err != nil {
+			logging.S.Warnf("Failed to read trusted certificates for server: %v", err)
+		} else {
+			pool.AddCert(cert)
+		}
 	}
 
 	return &http.Transport{
