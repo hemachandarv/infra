@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.13.2](https://github.com/infrahq/infra/compare/v0.13.1...v0.13.2) (2022-06-03)
+
+
+### Bug Fixes
+
+* auth and signup redirects ([#2183](https://github.com/infrahq/infra/issues/2183)) ([e4ed20c](https://github.com/infrahq/infra/commit/e4ed20c056f8ead94a1cf1bdf3637defdf796bf6))
+* fix auth ui redirects for new otp users ([#2091](https://github.com/infrahq/infra/issues/2091)) ([e8744ad](https://github.com/infrahq/infra/commit/e8744ad82840780e8c1720a456c11fcf88f64df8))
+* handle undefined when first load the grants ([#2187](https://github.com/infrahq/infra/issues/2187)) ([c86e1fe](https://github.com/infrahq/infra/commit/c86e1fe6a219a06ff4c7e01a33bd71bccbfc14f3))
+* infra default role is no role ([#2148](https://github.com/infrahq/infra/issues/2148)) ([e40a202](https://github.com/infrahq/infra/commit/e40a20298815988da316128c9b89573ec8faffe4))
+* profile-icon component refactor ([#2150](https://github.com/infrahq/infra/issues/2150)) ([b84dcd7](https://github.com/infrahq/infra/commit/b84dcd7fe00f2b5ff7a227358884085da6fbeda1))
+* release build should not contain dev ([f26db74](https://github.com/infrahq/infra/commit/f26db74ea62fb61f5742a00fa8ed26ca22f8eb91))
+* remove identity from CLI help ([#2172](https://github.com/infrahq/infra/issues/2172)) ([3350a80](https://github.com/infrahq/infra/commit/3350a807757714564e0c4b2c610d0e99f154bbc7))
+* ui bugs ([#2120](https://github.com/infrahq/infra/issues/2120)) ([128bd01](https://github.com/infrahq/infra/commit/128bd017afd54b104ff8c85646f2e43901a4ba84))
+* ui bugs ([#2142](https://github.com/infrahq/infra/issues/2142)) ([66ef1b9](https://github.com/infrahq/infra/commit/66ef1b964ddbf92f1f861ffeabb151fd4b95c9ae))
+* ui props being passed when using authrequired ([#2169](https://github.com/infrahq/infra/issues/2169)) ([65a36eb](https://github.com/infrahq/infra/commit/65a36ebf527f1a28217d7016551cad7fbc338cb3))
+
 ### [0.13.1](https://github.com/infrahq/infra/compare/v0.13.0...v0.13.1) (2022-05-27)
 
 
